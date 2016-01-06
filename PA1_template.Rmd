@@ -7,19 +7,137 @@ output:
 
 
 ## Loading and preprocessing the data
+```{R}
+activityFile <- ".\\activity\\activity.csv"
+activitydf <- read.csv(activityFile) 
 
+#preview contents of file
+head(activitydf)
+tail(activitydf)
+activitydf[activitydf$date=='2012-10-31',]$steps
+activitydf[activitydf$interval==1005,]$steps
+```
+
+#2.Histogram of the total number of steps taken each day
+
+```{R}
+activityTotbyDate <- aggregate(steps ~ date, data=activitydf, sum)
+hist(activityTotbyDate$steps, col="blue", main="", xlab="") 
+title(xlab="Total Steps per Day", main="Histogram of Total Steps per Day")
+```
 
 
 ## What is mean total number of steps taken per day?
+##3.Mean and median number of steps taken each day
+```{R}
+activityMeanbyDate <- aggregate(steps ~ date, data=activitydf, mean)
+activityMeanbyDate
+activityMedianbyDate <- aggregate(steps ~ date, data=activitydf ,median)
+activityMedianbyDate
+```
 
 
 
 ## What is the average daily activity pattern?
+##4.Time series plot of the average number of steps taken
+```{R}
+activityMeanbyInterval <- aggregate(steps ~ interval, data=activitydf, mean, na.action = na.omit)
+plot(steps ~ interval, data=activityMeanbyInterval, type="l", xlab="", ylab="")
+title(xlab="5-minute interval", ylab="Average steps (all dates)")
+```
 
-
+##5.Display the 5-minute interval that, on average, contains the maximum number of steps
+```{R}
+activityMeanbyInterval[which.max(activityMeanbyInterval$steps),"interval"]
+```
 
 ## Imputing missing values
+```{R}
+#create dataset for missing values
+missingValues <- activitydf[is.na(activitydf),]
+
+#show number of missing values in the dataset
+nrow(missingValues)
+#show dates with missing values
+unique(as.Date(missingValues[,"date"]))
+
+#update missing values with 5 minute interval mean values
+
+#combine missingvalues dataframe with the Mean value for each 5 minute interval
+meanForNA <- merge(missingValues[,c("date", "interval")], activityMeanbyInterval, by="interval")
+rm(missingValues) ##clean-up
+
+#create new dataset to fill in missing data using mean for the 5 minute interval
+
+#combine activitydf, removing NA's, with the new dataframe using the interval Mean values
+activitydfMeanForNA <- rbind(
+        activitydf[complete.cases(activitydf),], 
+        meanForNA[,c("steps","date","interval")])
+rm(meanForNA) ##clean-up
+#sort list
+activitydfMeanForNA <- activitydfMeanForNA[order(activitydfMeanForNA$date, activitydfMeanForNA$interval),]
 
 
+#7.Histogram of the total number of steps taken each day after missing values are imputed
+
+#Calculate the total number of steps taken per day
+activityTotbyDate <- aggregate(steps ~ date, data=activitydfMeanForNA, sum)
+
+hist(activityTotbyDate$steps, col="green", main="", xlab="") 
+title(xlab="Total Steps per Day", main="Histogram of Total Steps per Day")
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+```{R}
+#8.Panel plot comparing the average number of steps taken per 5-minute interval 
+#   across weekdays and weekends
+
+#Setup weekend and workday array
+weekendDays <- c("Saturday", "Sunday")
+workDays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+
+#Create ordered factor for weekday/weekend
+dayType <- factor(c("weekday", "weekend"),ordered = TRUE)
+
+#Create aggregate dataframes for weekend and weekdays.  
+#Aggregate separately and use rbind to combine. Use cbind 
+#to append weekday/weekend factor
+activitydfMeanForNA <- rbind(
+      cbind(aggregate(steps ~ interval, 
+                  data=activitydfMeanForNA[weekdays(as.Date(activitydfMeanForNA$date)) %in% workDays,], 
+                  mean), weekday=dayType[1] 
+        ),
+      cbind(aggregate(steps ~ interval, 
+                data=activitydfMeanForNA[weekdays(as.Date(activitydfMeanForNA$date)) %in% weekendDays,], 
+                mean), weekday=dayType[2]
+        )
+    )
+
+par(mfrow = c(2, 1))   #set plots per page
+par(mar = c(0,0,0,0))  #set plot margins 
+par(oma = c(5,5,1,1))  #set outer margins
+par(mgp=c(2,0.6,0))
+par(cex=0.6)
+par(tcl=-0.25) #set tick length
+
+#plot weekdays
+plot(steps ~ interval, 
+      data=activitydfMeanForNA[activitydfMeanForNA$weekday=="weekday",], 
+      type="l", col="red", ylim=c(0,250), ann=FALSE, xaxt="n")
+mtext("Weekdays", col="red", side = 3, line = -1.5, adj = 0.1, cex = 0.7)
+
+#plot weekends
+plot(steps ~ interval, 
+     data=activitydfMeanForNA[activitydfMeanForNA$weekday=="weekend",], 
+     type="l", col="blue", ylim=c(0,250),  ann=FALSE)
+mtext("Weekends", col="blue", side = 3, line = -1.5, adj = 0.1, cex = 0.7)
+
+mtext("5-minute interval", side = 1, cex=0.7, outer = TRUE, line = 2.2)
+mtext("Average steps", side = 2, cex=0.7, outer = TRUE, line = 2.2)
+```
+
+
+
+
+
