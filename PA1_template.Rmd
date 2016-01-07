@@ -6,69 +6,81 @@ output:
 ---
 
 
-## Loading and preprocessing the data
+##1. Loading and preprocessing the data
 ```{R}
 activityFile <- ".\\activity\\activity.csv"
 activitydf <- read.csv(activityFile) 
-
-#preview contents of file
+```
+preview contents of file
+```{R}
 head(activitydf)
 tail(activitydf)
 activitydf[activitydf$date=='2012-10-31',]$steps
 activitydf[activitydf$interval==1005,]$steps
 ```
 
-#2.Histogram of the total number of steps taken each day
+##2.Histogram of the total number of steps taken each day
 
+I will use the base plotting system and increase the number of breaks in the data
 ```{R}
 activityTotbyDate <- aggregate(steps ~ date, data=activitydf, sum)
-hist(activityTotbyDate$steps, col="blue", main="", xlab="") 
+hist(activityTotbyDate$steps, col="blue", main="", xlab="", breaks=20) 
 title(xlab="Total Steps per Day", main="Histogram of Total Steps per Day")
 ```
 
 
-## What is mean total number of steps taken per day?
-##3.Mean and median number of steps taken each day
+##3. What is mean total number of steps taken per day?
+
+I will show both the mean and the median
 ```{R}
-activityMeanbyDate <- aggregate(steps ~ date, data=activitydf, mean)
-activityMeanbyDate
-activityMedianbyDate <- aggregate(steps ~ date, data=activitydf ,median)
-activityMedianbyDate
+mean(activityTotbyDate$steps)
+median(activityTotbyDate$steps)
 ```
 
 
-
 ## What is the average daily activity pattern?
-##4.Time series plot of the average number of steps taken
+
+4.Time series plot of the average number of steps taken
+
+Again, use the base plotting system. This plot will have the NA values omitted
 ```{R}
-activityMeanbyInterval <- aggregate(steps ~ interval, data=activitydf, mean, na.action = na.omit)
+activityMeanbyInterval <- 
+      aggregate(steps ~ interval, data=activitydf, mean, na.action = na.omit)
 plot(steps ~ interval, data=activityMeanbyInterval, type="l", xlab="", ylab="")
 title(xlab="5-minute interval", ylab="Average steps (all dates)")
 ```
 
-##5.Display the 5-minute interval that, on average, contains the maximum number of steps
+5.Display the 5-minute interval that, on average, contains the maximum number of steps
 ```{R}
-activityMeanbyInterval[which.max(activityMeanbyInterval$steps),"interval"]
+activityMeanbyInterval[which.max(activityMeanbyInterval$steps),]
 ```
 
 ## Imputing missing values
+
+The first thing to notice is the the only missing values are for complete days in the dataset and that only steps are missing.
+
 ```{R}
 #create dataset for missing values
 missingValues <- activitydf[is.na(activitydf),]
 
 #show number of missing values in the dataset
 nrow(missingValues)
+
 #show dates with missing values
 unique(as.Date(missingValues[,"date"]))
+```
 
-#update missing values with 5 minute interval mean values
+For missing values in the dataset, I will use the mean per 5-minute interval across all days for each interval in the missing days.
 
+```{R}
 #combine missingvalues dataframe with the Mean value for each 5 minute interval
 meanForNA <- merge(missingValues[,c("date", "interval")], activityMeanbyInterval, by="interval")
 rm(missingValues) ##clean-up
+```
 
-#create new dataset to fill in missing data using mean for the 5 minute interval
+create a new dataset to fill in missing data using mean for the 5 minute interval
 
+```{R}
 #combine activitydf, removing NA's, with the new dataframe using the interval Mean values
 activitydfMeanForNA <- rbind(
         activitydf[complete.cases(activitydf),], 
@@ -76,23 +88,29 @@ activitydfMeanForNA <- rbind(
 rm(meanForNA) ##clean-up
 #sort list
 activitydfMeanForNA <- activitydfMeanForNA[order(activitydfMeanForNA$date, activitydfMeanForNA$interval),]
-
+```
 
 #7.Histogram of the total number of steps taken each day after missing values are imputed
 
-#Calculate the total number of steps taken per day
+First Calculate the total number of steps taken per day
+```{R}
 activityTotbyDate <- aggregate(steps ~ date, data=activitydfMeanForNA, sum)
+```
 
-hist(activityTotbyDate$steps, col="green", main="", xlab="") 
+Show the histogram
+```{R}
+hist(activityTotbyDate$steps, col="green", main="", xlab="", breaks=20) 
 title(xlab="Total Steps per Day", main="Histogram of Total Steps per Day")
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{R}
-#8.Panel plot comparing the average number of steps taken per 5-minute interval 
-#   across weekdays and weekends
+8.Panel plot comparing the average number of steps taken per 5-minute interval 
+across weekdays and weekends
 
+First add a column to the dataset with a weekday, weekend factor
+
+```{R}
 #Setup weekend and workday array
 weekendDays <- c("Saturday", "Sunday")
 workDays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
@@ -113,7 +131,11 @@ activitydfMeanForNA <- rbind(
                 mean), weekday=dayType[2]
         )
     )
+```
 
+Create panel plot. I used the base plotting system and tried to customize it, hence the extra code.
+
+```{R}
 par(mfrow = c(2, 1))   #set plots per page
 par(mar = c(0,0,0,0))  #set plot margins 
 par(oma = c(5,5,1,1))  #set outer margins
@@ -137,7 +159,6 @@ mtext("5-minute interval", side = 1, cex=0.7, outer = TRUE, line = 2.2)
 mtext("Average steps", side = 2, cex=0.7, outer = TRUE, line = 2.2)
 ```
 
-
-
+There are differences in the pattern between weekends and weekdays as shown above
 
 

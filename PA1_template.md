@@ -1,13 +1,15 @@
 # Reproducible Research: Peer Assessment 1
 
 
-## Loading and preprocessing the data
+##1. Loading and preprocessing the data
 
 ```r
 activityFile <- ".\\activity\\activity.csv"
 activitydf <- read.csv(activityFile) 
+```
+preview contents of file
 
-#preview contents of file
+```r
 head(activitydf)
 ```
 
@@ -70,169 +72,70 @@ activitydf[activitydf$interval==1005,]$steps
 ## [52]   0   0   0   0   0   0   0   0   0  NA
 ```
 
-#2.Histogram of the total number of steps taken each day
+##2.Histogram of the total number of steps taken each day
 
+I will use the base plotting system and increase the number of breaks in the data
 
 ```r
 activityTotbyDate <- aggregate(steps ~ date, data=activitydf, sum)
-hist(activityTotbyDate$steps, col="blue", main="", xlab="") 
+hist(activityTotbyDate$steps, col="blue", main="", xlab="", breaks=20) 
 title(xlab="Total Steps per Day", main="Histogram of Total Steps per Day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
 
 
-## What is mean total number of steps taken per day?
-##3.Mean and median number of steps taken each day
+##3. What is mean total number of steps taken per day?
+
+I will show both the mean and the median
 
 ```r
-activityMeanbyDate <- aggregate(steps ~ date, data=activitydf, mean)
-activityMeanbyDate
+mean(activityTotbyDate$steps)
 ```
 
 ```
-##          date      steps
-## 1  2012-10-02  0.4375000
-## 2  2012-10-03 39.4166667
-## 3  2012-10-04 42.0694444
-## 4  2012-10-05 46.1597222
-## 5  2012-10-06 53.5416667
-## 6  2012-10-07 38.2465278
-## 7  2012-10-09 44.4826389
-## 8  2012-10-10 34.3750000
-## 9  2012-10-11 35.7777778
-## 10 2012-10-12 60.3541667
-## 11 2012-10-13 43.1458333
-## 12 2012-10-14 52.4236111
-## 13 2012-10-15 35.2048611
-## 14 2012-10-16 52.3750000
-## 15 2012-10-17 46.7083333
-## 16 2012-10-18 34.9166667
-## 17 2012-10-19 41.0729167
-## 18 2012-10-20 36.0937500
-## 19 2012-10-21 30.6284722
-## 20 2012-10-22 46.7361111
-## 21 2012-10-23 30.9652778
-## 22 2012-10-24 29.0104167
-## 23 2012-10-25  8.6527778
-## 24 2012-10-26 23.5347222
-## 25 2012-10-27 35.1354167
-## 26 2012-10-28 39.7847222
-## 27 2012-10-29 17.4236111
-## 28 2012-10-30 34.0937500
-## 29 2012-10-31 53.5208333
-## 30 2012-11-02 36.8055556
-## 31 2012-11-03 36.7048611
-## 32 2012-11-05 36.2465278
-## 33 2012-11-06 28.9375000
-## 34 2012-11-07 44.7326389
-## 35 2012-11-08 11.1770833
-## 36 2012-11-11 43.7777778
-## 37 2012-11-12 37.3784722
-## 38 2012-11-13 25.4722222
-## 39 2012-11-15  0.1423611
-## 40 2012-11-16 18.8923611
-## 41 2012-11-17 49.7881944
-## 42 2012-11-18 52.4652778
-## 43 2012-11-19 30.6979167
-## 44 2012-11-20 15.5277778
-## 45 2012-11-21 44.3993056
-## 46 2012-11-22 70.9270833
-## 47 2012-11-23 73.5902778
-## 48 2012-11-24 50.2708333
-## 49 2012-11-25 41.0902778
-## 50 2012-11-26 38.7569444
-## 51 2012-11-27 47.3819444
-## 52 2012-11-28 35.3576389
-## 53 2012-11-29 24.4687500
+## [1] 10766.19
 ```
 
 ```r
-activityMedianbyDate <- aggregate(steps ~ date, data=activitydf ,median)
-activityMedianbyDate
+median(activityTotbyDate$steps)
 ```
 
 ```
-##          date steps
-## 1  2012-10-02     0
-## 2  2012-10-03     0
-## 3  2012-10-04     0
-## 4  2012-10-05     0
-## 5  2012-10-06     0
-## 6  2012-10-07     0
-## 7  2012-10-09     0
-## 8  2012-10-10     0
-## 9  2012-10-11     0
-## 10 2012-10-12     0
-## 11 2012-10-13     0
-## 12 2012-10-14     0
-## 13 2012-10-15     0
-## 14 2012-10-16     0
-## 15 2012-10-17     0
-## 16 2012-10-18     0
-## 17 2012-10-19     0
-## 18 2012-10-20     0
-## 19 2012-10-21     0
-## 20 2012-10-22     0
-## 21 2012-10-23     0
-## 22 2012-10-24     0
-## 23 2012-10-25     0
-## 24 2012-10-26     0
-## 25 2012-10-27     0
-## 26 2012-10-28     0
-## 27 2012-10-29     0
-## 28 2012-10-30     0
-## 29 2012-10-31     0
-## 30 2012-11-02     0
-## 31 2012-11-03     0
-## 32 2012-11-05     0
-## 33 2012-11-06     0
-## 34 2012-11-07     0
-## 35 2012-11-08     0
-## 36 2012-11-11     0
-## 37 2012-11-12     0
-## 38 2012-11-13     0
-## 39 2012-11-15     0
-## 40 2012-11-16     0
-## 41 2012-11-17     0
-## 42 2012-11-18     0
-## 43 2012-11-19     0
-## 44 2012-11-20     0
-## 45 2012-11-21     0
-## 46 2012-11-22     0
-## 47 2012-11-23     0
-## 48 2012-11-24     0
-## 49 2012-11-25     0
-## 50 2012-11-26     0
-## 51 2012-11-27     0
-## 52 2012-11-28     0
-## 53 2012-11-29     0
+## [1] 10765
 ```
-
 
 
 ## What is the average daily activity pattern?
-##4.Time series plot of the average number of steps taken
+
+4.Time series plot of the average number of steps taken
+
+Again, use the base plotting system. This plot will have the NA values omitted
 
 ```r
-activityMeanbyInterval <- aggregate(steps ~ interval, data=activitydf, mean, na.action = na.omit)
+activityMeanbyInterval <- 
+      aggregate(steps ~ interval, data=activitydf, mean, na.action = na.omit)
 plot(steps ~ interval, data=activityMeanbyInterval, type="l", xlab="", ylab="")
 title(xlab="5-minute interval", ylab="Average steps (all dates)")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
 
-##5.Display the 5-minute interval that, on average, contains the maximum number of steps
+5.Display the 5-minute interval that, on average, contains the maximum number of steps
 
 ```r
-activityMeanbyInterval[which.max(activityMeanbyInterval$steps),"interval"]
+activityMeanbyInterval[which.max(activityMeanbyInterval$steps),]
 ```
 
 ```
-## [1] 835
+##     interval    steps
+## 104      835 206.1698
 ```
 
 ## Imputing missing values
+
+The first thing to notice is the the only missing values are for complete days in the dataset and that only steps are missing.
+
 
 ```r
 #create dataset for missing values
@@ -256,15 +159,19 @@ unique(as.Date(missingValues[,"date"]))
 ## [6] "2012-11-10" "2012-11-14" "2012-11-30"
 ```
 
-```r
-#update missing values with 5 minute interval mean values
+For missing values in the dataset, I will use the mean per 5-minute interval across all days for each interval in the missing days.
 
+
+```r
 #combine missingvalues dataframe with the Mean value for each 5 minute interval
 meanForNA <- merge(missingValues[,c("date", "interval")], activityMeanbyInterval, by="interval")
 rm(missingValues) ##clean-up
+```
 
-#create new dataset to fill in missing data using mean for the 5 minute interval
+create a new dataset to fill in missing data using mean for the 5 minute interval
 
+
+```r
 #combine activitydf, removing NA's, with the new dataframe using the interval Mean values
 activitydfMeanForNA <- rbind(
         activitydf[complete.cases(activitydf),], 
@@ -272,26 +179,34 @@ activitydfMeanForNA <- rbind(
 rm(meanForNA) ##clean-up
 #sort list
 activitydfMeanForNA <- activitydfMeanForNA[order(activitydfMeanForNA$date, activitydfMeanForNA$interval),]
-
+```
 
 #7.Histogram of the total number of steps taken each day after missing values are imputed
 
-#Calculate the total number of steps taken per day
-activityTotbyDate <- aggregate(steps ~ date, data=activitydfMeanForNA, sum)
+First Calculate the total number of steps taken per day
 
-hist(activityTotbyDate$steps, col="green", main="", xlab="") 
+```r
+activityTotbyDate <- aggregate(steps ~ date, data=activitydfMeanForNA, sum)
+```
+
+Show the histogram
+
+```r
+hist(activityTotbyDate$steps, col="green", main="", xlab="", breaks=20) 
 title(xlab="Total Steps per Day", main="Histogram of Total Steps per Day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
+8.Panel plot comparing the average number of steps taken per 5-minute interval 
+across weekdays and weekends
+
+First add a column to the dataset with a weekday, weekend factor
+
 
 ```r
-#8.Panel plot comparing the average number of steps taken per 5-minute interval 
-#   across weekdays and weekends
-
 #Setup weekend and workday array
 weekendDays <- c("Saturday", "Sunday")
 workDays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
@@ -312,7 +227,12 @@ activitydfMeanForNA <- rbind(
                 mean), weekday=dayType[2]
         )
     )
+```
 
+Create panel plot. I used the base plotting system and tried to customize it, hence the extra code.
+
+
+```r
 par(mfrow = c(2, 1))   #set plots per page
 par(mar = c(0,0,0,0))  #set plot margins 
 par(oma = c(5,5,1,1))  #set outer margins
@@ -336,9 +256,8 @@ mtext("5-minute interval", side = 1, cex=0.7, outer = TRUE, line = 2.2)
 mtext("Average steps", side = 2, cex=0.7, outer = TRUE, line = 2.2)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-13-1.png) 
 
-
-
+There are differences in the pattern between weekends and weekdays as shown above
 
 
